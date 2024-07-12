@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+
 import { FaUser, FaLock } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
-import "./Login.css";
+import styles from "./Login.module.css"; // Importando o módulo CSS
+
 
 function Login() {
   const [userName, setUserName] = useState("");
@@ -37,39 +39,39 @@ function Login() {
   };
 
   return (
-    <div className="container">
+    <div className={styles.container}>
       <form onSubmit={envForm}>
         <h1>Acesse o Sistema</h1>
-        <div className="input-field">
+        <div className={styles["input-field"]}>
           <input
             type="email"
             placeholder="E-mail"
             value={userName}
             onChange={(e) => setUserName(e.target.value)}
           />
-          <FaUser className="icon" />
+          <FaUser className={styles.icon} />
         </div>
-        <div className="input-field">
+        <div className={styles["input-field"]}>
           <input
             type="password"
             placeholder="Senha"
             value={userPassword}
             onChange={(e) => setUserPassword(e.target.value)}
           />
-          <FaLock className="icon" />
+          <FaLock className={styles.icon} />
         </div>
 
-        <div className="recall-forget">
+        <div className={styles["recall-forget"]}>
           <label>
             <input type="checkbox" name="" id="" />
             Lembre de mim
           </label>
-          <a href="#">Esqueceu a senha</a>
+          <Link to="/resetPassword">Esqueceu a senha?</Link>
         </div>
 
         <button type="submit">Entrar</button>
 
-        <div className="signup-link">
+        <div className={styles["signup-link"]}>
           <p>
             Não tem uma conta? <Link to="/cadastro">Registrar</Link>
           </p>
