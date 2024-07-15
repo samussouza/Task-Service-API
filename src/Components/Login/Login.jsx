@@ -10,8 +10,8 @@ function Login() {
   const [userPassword, setUserPassword] = useState("");
   const navigate = useNavigate();
 
-  const envForm = async (event) => {
-    event.preventDefault();
+  const envForm = async () => {
+    // event.preventDefault();
 
     try {
       const response = await fetch("http://localhost:4000/novaTarefa", {
