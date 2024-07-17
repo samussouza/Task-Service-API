@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import styles from './ResetPassword.module.css';
-import AdditionalDivToken from './AdditionalDivToken/AdditionalDivToken';
-// import { useNavigate } from 'react-router-dom';
+// import AdditionalDivToken from './AdditionalDivToken/AdditionalDivToken';
 
 function ResetPassword() {
     const [userEmail, setUserEmail] = useState('');
@@ -9,7 +8,7 @@ function ResetPassword() {
     const [errorMessage, setErrorMessage] = useState('');
     const [showAdditionalDiv, setShowAdditionalDiv] = useState(false);
     const [containerDisplay, setContainerDisplay] = useState('block');
-    const navigate = useNavigate();
+    const [token, setToken] = useState('');
 
     const validateEmail = (email) => {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -38,14 +37,16 @@ function ResetPassword() {
 
             const data = await response.json();
             console.log('Resposta do servidor:', data);
+            console.log(data.token);
+            setToken(data.token);
 
             setErrorMessage(''); // Limpa mensagem de erro se houver
             setSuccessMessage('Email enviado com sucesso!'); // Define mensagem de sucesso
-            setShowAdditionalDiv(true); // Exibe a AdditionalDivToken
+           
+            setShowAdditionalDiv(true); // Mostra o componente de validação de token
 
             setTimeout(() => {
                 setContainerDisplay('none'); // Esconde o container após sucesso
-                // navigate('/additionalDiv'); // Navega para outra rota após 3 segundos
             }, 3000);
 
         } catch (error) {
@@ -55,24 +56,58 @@ function ResetPassword() {
     };
 
     return (
-        <div className={styles['container']} style={{ display: containerDisplay }}>
-            <form className={styles['formReset']} onSubmit={envForm}>
-                <h1>Recuperar Senha</h1>
+        <div className={styles['container']} >
+            <form className={styles['formReset']} 
+            onSubmit={envForm} 
+            style={{ display: containerDisplay }}>
+                <h1 className={styles.titleForm}>Recuperar Senha</h1>
                 <div className={styles['field-input']}>
                     <p>Informe o email cadastrado em nossa plataforma:</p>
-                    <input
+                    <input className={styles.input}
                         placeholder='email@email.com'
                         type="email"
                         value={userEmail}
                         onChange={(e) => setUserEmail(e.target.value)}
                     />
                 </div>
-                {errorMessage && <p className={styles['error-message']}>{errorMessage}</p>}
+                {errorMessage && <span className={styles['error-message']}>{errorMessage}</span>}
+                <button type="submit" className={styles.button}>Enviar</button>
                 {successMessage && <p className={styles['success-message']}>{successMessage}</p>}
-                <button type="submit">Enviar</button>
             </form>
 
-            {showAdditionalDiv && <AdditionalDivToken />}
+            {showAdditionalDiv && <tokenValidation token={token} userEmail={userEmail} />}
+        </div>
+    );
+}
+
+
+function tokenValidation({ token}) {
+    const [tokenUser, setTokenUser] = useState("");
+    const [validationMessage, setValidationMessage] = useState("");
+
+    const validate = (e) => {
+        e.preventDefault();
+        
+        if (tokenUser === token) {
+            setValidationMessage("Token válido!");
+        } else {
+            setValidationMessage("Token inválido!");
+        }
+    };
+
+    return (
+        <div>
+            <p>Informe o token:</p>
+            <form onSubmit={validate}>
+                <input
+                    type="text"
+                    value={tokenUser}
+                    onChange={(e) => setTokenUser(e.target.value)}
+                    placeholder="Insira o token "
+                />
+                <button type="submit">Validar</button>
+            </form>
+            <p>{validationMessage}</p>
         </div>
     );
 }

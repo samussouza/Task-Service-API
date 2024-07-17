@@ -1,20 +1,20 @@
 import React, { useState } from "react";
 
 import { FaUser, FaLock } from "react-icons/fa";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, json } from "react-router-dom";
 import styles from "./Login.module.css"; // Importando o módulo CSS
 
 
 function Login() {
   const [userName, setUserName] = useState("");
   const [userPassword, setUserPassword] = useState("");
-  const navigate = useNavigate();
+  var navigate = useNavigate();
 
-  const envForm = async () => {
-    // event.preventDefault();
+  const envForm = async (event) => {
+    event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:4000/novaTarefa", {
+      const response = await fetch("http://localhost:4000/usuario/validateUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -27,10 +27,13 @@ function Login() {
       }
 
       const data = await response.json();
+      sessionStorage.setItem("NAME_USER", data.user.nome);
+      sessionStorage.setItem("ID_USER", data.user.id);
+
       console.log("Resposta do servidor:", data);
       alert("Usuário encontrado!");
 
-      navigate("/cadastro");
+      navigate("/home");
 
     } catch (error) {
       console.error("Erro na requisição:", error.message);
@@ -43,7 +46,7 @@ function Login() {
       <form onSubmit={envForm}>
         <h1>Acesse o Sistema</h1>
         <div className={styles["input-field"]}>
-          <input
+          <input className={styles.input}
             type="email"
             placeholder="E-mail"
             value={userName}
@@ -53,6 +56,7 @@ function Login() {
         </div>
         <div className={styles["input-field"]}>
           <input
+            className={styles.input}
             type="password"
             placeholder="Senha"
             value={userPassword}
@@ -63,6 +67,7 @@ function Login() {
 
         <div className={styles["recall-forget"]}>
           <label>
+            className={styles.input}
             <input type="checkbox" name="" id="" />
             Lembre de mim
           </label>

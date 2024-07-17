@@ -1,6 +1,6 @@
 const database = require('../database/connection');
 
-function novaTarefa(req, res) {
+function validateUser(req, res) {
     const { userName, userPassword } = req.body;
 
     console.log(userName, userPassword);
@@ -13,9 +13,7 @@ function novaTarefa(req, res) {
             console.error('Erro ao validar usuário:', error);
             res.status(500).json({ error: 'Erro ao validar usuário' });
             return;
-        }
-
-        if (results.length > 0) {
+        } else if (results.length > 0) {
             console.log('Usuário encontrado:', results);
             res.json({ message: 'Usuário validado com sucesso', user: results[0] });
         } else {
@@ -34,30 +32,31 @@ function registerUser(req, res) {
 
     const checkUser = "SELECT * FROM usuario WHERE email = ?";
     database.query(checkUser, [email], (checkError, checkResults) => {
-
-        if (checkResults.length == 1) {
+        if (checkError) {
+            console.error("Erro na consulta do usuário:", checkError);
+            return res.status(500).json({ error: "Erro ao verificar o usuário" });
+        } else if (checkResults.length > 0) {
             return res.status(409).json({ message: "Email já cadastrado" });
-
         } else {
-            const query = "INSERT INTO usuario(nome, email, senha) VALUES (?, ?, ?)"
+            const query = "INSERT INTO usuario(nome, email, senha) VALUES (?, ?, ?)";
             const values = [nome, email, senha];
 
             database.query(query, values, (error, results) => {
                 if (error) {
-                    console.error(error)
+                    console.error("Erro ao registrar o usuário:", error);
                     return res.status(500).json({ error: "Erro ao registrar o usuário" });
-
                 }
 
                 console.log('Usuário registrado:', results);
                 console.log('SQL inserido:', database.format(query, values));
-                res.status(201).json({ message: 'Usuário registrado com sucesso' })
-            })
+                res.status(201).json({ message: 'Usuário registrado com sucesso' });
+             
+            });
         }
     });
 }
 
 module.exports = {
-    novaTarefa,
+    validateUser,
     registerUser
 }

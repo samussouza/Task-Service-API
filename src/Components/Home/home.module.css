@@ -1,0 +1,78 @@
+.nav {
+    background-color: rgb(23, 175, 230);
+    width: 100%;
+    height: 50px;
+    z-index: 1;
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+}
+.sessao {
+    border: 2px solid black;
+    padding: 2px;
+}
+.container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.menu {
+    width: 4%;
+    height: 100vh;
+    background-color: black;
+}
+
+.containerContent {
+    width: 96%;
+}
+
+.flexContainer{
+    display: flex;
+    justify-content: space-around;
+}
+
+.divNewTask{
+    background-color: aquamarine;
+    width: 40%;
+    height: 500px;
+    background-color: azure;
+}
+
+.divTableTask{
+    /* background-color: blue; */
+    width: 60%;
+    /* display: none; */
+}
+
+/* .textArea{
+    
+} */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* tr:nth-child(even) {
+    background-color: #f2f2f2;
+} */
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}   
+
+th {
+    background-color: #4c89af;
+    color: white;
+}
+
+.deleteTask{
+    cursor: pointer;
+}
+
+/* .modalInside {
+    
+    
+} */

@@ -13,7 +13,7 @@ function Cadastro() {
 
     const userRegister = async (event) => {
         event.preventDefault(); //Para evitar que a pagina seja carregada no envio do form.
-
+       
         // const validationMessage = fieldsValidations(userName, userEmail, userPassword);
         // showErrorMessage(validationMessage);
 
@@ -39,20 +39,21 @@ function Cadastro() {
                 const errorData = await response.json();
                 if (response.status == 409) {
                     showErrorMessage("Email já cadastrado");
+                    showSuccessMessage("");
                 } else {
                     throw new Error('Erro ao realizar o cadastro');
+                   
                 }
                 console.log('Resposta do servidor:', errorData);
             }
             else {
                 const data = await response.json();
                 console.log('Resposta do servidor:', data);
+                showSuccessMessage("Cadastro realizado com sucesso!");
 
                 setTimeout(() => {
-                    showSuccessMessage("Cadastro realizado com sucesso!");
-                    navigate = '/login      ';
-
-                }, 3000)
+                    navigate("/login");
+                }, 5000)
                 showErrorMessage("");
             }
         } catch (error) {
@@ -95,26 +96,28 @@ function Cadastro() {
 }
 
 
-// function fieldsValidations(nome, email, senha) {
+    // function fieldsValidations(nome, email, senha) {
 
-//     // const isEmail = email.vim();
-//     // const isName = nome.vim();
-//     // const isSenha = senha.vim();
+    //     // const isEmail = email.vim();
+    //     // const isName = nome.vim();
+    //     // const isSenha = senha.vim();
 
-//     // const regexEmail = /@.com/;
-//     const minlengthSenha = senha.length < 8;
-//     const regexSenha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.!#])$/
+    //     // const regexEmail = /@.com/;
+    //     const minlengthSenha = senha.length < 8;
+    //     const regexSenha = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@.!#])$/
 
-//     if (!nome || !email || !senha) {
-//         return "Todos os campos são obrigatórios!";
-//     } else if (!regexEmail.test(email)) {
-//         return "Email inválido!";
-//     } else if (minlengthSenha || regexSenha) {
-//         return "A senha precisa ter 8 caracteres com letra maiúscula, minúscula, número e caractere especial.";
-//     }
-//     return "";
+    //     if (!nome || !email || !senha) {
+    //         return "Todos os campos são obrigatórios!";
+    //     } 
+    //     // else if (!regexEmail.test(email)) {
+    //     //     return "Email inválido!";
+    //     // } 
+    //     else if (minlengthSenha || regexSenha) {
+    //         return "A senha precisa ter 8 caracteres com letra maiúscula, minúscula, número e caractere especial.";
+    //     }
+    //     return "";
 
-// }
+    // }
 
 export default Cadastro;
 

@@ -1,11 +1,11 @@
 // const connection = require('../database/connection');
 const express = require('express');
 const router = express.Router();
-const TaskController = require('../controllers/TaskController');
+const usuarioController = require('../controllers/userController');
 
 
-router.post('/novaTarefa', TaskController.novaTarefa);
+router.post('/validateUser', usuarioController.validateUser);
 
-router.post('/registerUser', TaskController.registerUser);
+router.post('/registerUser', usuarioController.registerUser);
 
 module.exports = router;
