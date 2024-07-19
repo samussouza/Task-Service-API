@@ -25,11 +25,9 @@ function validateUser(req, res) {
 
 function registerUser(req, res) {
     const { nome, email, senha } = req.body;
-
     if (!nome || !email || !senha) {
         return res.status(400).send("Todos os campos são obrigatórios");
     }
-
     const checkUser = "SELECT * FROM usuario WHERE email = ?";
     database.query(checkUser, [email], (checkError, checkResults) => {
         if (checkError) {
@@ -40,17 +38,14 @@ function registerUser(req, res) {
         } else {
             const query = "INSERT INTO usuario(nome, email, senha) VALUES (?, ?, ?)";
             const values = [nome, email, senha];
-
             database.query(query, values, (error, results) => {
                 if (error) {
                     console.error("Erro ao registrar o usuário:", error);
                     return res.status(500).json({ error: "Erro ao registrar o usuário" });
                 }
-
                 console.log('Usuário registrado:', results);
                 console.log('SQL inserido:', database.format(query, values));
                 res.status(201).json({ message: 'Usuário registrado com sucesso' });
-             
             });
         }
     });

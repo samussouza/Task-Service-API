@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './ResetPassword.module.css';
-// import AdditionalDivToken from './AdditionalDivToken/AdditionalDivToken';
+import AdditionalDivToken from './AdditionalDivToken/AdditionalDivToken';
 
 function ResetPassword() {
     const [userEmail, setUserEmail] = useState('');
@@ -21,7 +21,7 @@ function ResetPassword() {
             setErrorMessage('Email inválido');
             return;
         }
-
+        sessionStorage.setItem("EMAIL_USER", setUserEmail)
         try {
             const response = await fetch('http://localhost:4000/emailService/resetPassword', {
                 method: 'POST',
@@ -32,23 +32,27 @@ function ResetPassword() {
             });
 
             if (!response.ok) {
-                throw new Error('Erro ao resetar senha');
+                if (response.status === 401) {
+                    setErrorMessage("O email informado não está cadastrado");
+                } else {
+                    throw new Error('Erro ao resetar senha');
+                }
+            } else {
+                const data = await response.json();
+                console.log('Resposta do servidor:', data);
+                console.log(data.token);
+                setToken(data.token);
+                sessionStorage.setItem("USER_ID_RESET", data.id);
+
+                setErrorMessage(''); // Limpa mensagem de erro se houver
+                setSuccessMessage('Email enviado com sucesso!'); // Define mensagem de sucesso
+
+                setShowAdditionalDiv(true); // Mostra o componente de validação de token
+
+                setTimeout(() => {
+                    setContainerDisplay('none'); // Esconde o container após sucesso
+                }, 3000);
             }
-
-            const data = await response.json();
-            console.log('Resposta do servidor:', data);
-            console.log(data.token);
-            setToken(data.token);
-
-            setErrorMessage(''); // Limpa mensagem de erro se houver
-            setSuccessMessage('Email enviado com sucesso!'); // Define mensagem de sucesso
-           
-            setShowAdditionalDiv(true); // Mostra o componente de validação de token
-
-            setTimeout(() => {
-                setContainerDisplay('none'); // Esconde o container após sucesso
-            }, 3000);
-
         } catch (error) {
             console.error('Erro na requisição:', error.message);
             setErrorMessage('Erro ao resetar senha: ' + error.message);
@@ -57,9 +61,9 @@ function ResetPassword() {
 
     return (
         <div className={styles['container']} >
-            <form className={styles['formReset']} 
-            onSubmit={envForm} 
-            style={{ display: containerDisplay }}>
+            <form className={styles['formReset']}
+                onSubmit={envForm}
+                style={{ display: containerDisplay }}>
                 <h1 className={styles.titleForm}>Recuperar Senha</h1>
                 <div className={styles['field-input']}>
                     <p>Informe o email cadastrado em nossa plataforma:</p>
@@ -75,25 +79,53 @@ function ResetPassword() {
                 {successMessage && <p className={styles['success-message']}>{successMessage}</p>}
             </form>
 
-            {showAdditionalDiv && <tokenValidation token={token} userEmail={userEmail} />}
+            {showAdditionalDiv && <TokenValidation token={token} />}
         </div>
     );
 }
 
-
-function tokenValidation({ token}) {
+function TokenValidation({ token }) {
     const [tokenUser, setTokenUser] = useState("");
     const [validationMessage, setValidationMessage] = useState("");
+    const [showNewPassword, setNewPassword] = useState(false);
+    const [idUser, setIdUser] = useState("");
 
     const validate = (e) => {
         e.preventDefault();
-        
         if (tokenUser === token) {
             setValidationMessage("Token válido!");
+
         } else {
             setValidationMessage("Token inválido!");
+            setNewPassword(true);
         }
     };
+
+    const [userSenha, setUserSenha] = useState("");
+    const [userRepeatSenha, setUserRepeatSenha] = useState("");
+
+    const envForm = async (e) => {
+        e.preventDefault();
+
+
+        try {
+            const response = await fetch('http://localhost:4000/emailService/changePassword', {
+                method: "POST",
+                headers: {
+                    "Content-type": "application-json"
+                },
+                body: JSON.stringify({ password: userSenha, email: sessionStorage.EMAIL_USER })
+            });
+            if (response.ok) {
+                const data = response.json();
+                console.log("Resposta do servidor:" + data);
+            } else {
+                throw new Error("Erro ao alterar a senha!")
+            }
+        } catch (error) {
+            console.error('Erro na requisição:', error.message);
+        }
+    }
 
     return (
         <div>
@@ -108,6 +140,23 @@ function tokenValidation({ token}) {
                 <button type="submit">Validar</button>
             </form>
             <p>{validationMessage}</p>
+
+            {showNewPassword && <div>
+                <div className={styles.formNewPassword}>
+                    <h3 className={styles.titleFormNewPassword}>Insira sua nova senha</h3>
+                    <form onSubmit={envForm} >
+                        <label>
+                            Senha:
+                            <input type='password' placeholder='******' value={userSenha} onChange={(e) => setUserSenha(e.target.value)} />
+                        </label>
+                        <label>
+                            Repita novamente:
+                            <input type="password" placeholder='******' value={userRepeatSenha} onChange={(e) => setUserRepeatSenha(e.target.value)} />
+                        </label>
+                        <button>Mudar</button>
+                    </form>
+                </div>
+            </div>}
         </div>
     );
 }
