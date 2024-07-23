@@ -1,0 +1,12 @@
+# Ignorar package-lock.json
+package-lock.json
+
+# Ignorar a pasta node_modules
+node_modules/
+
+# Ignorar todos os arquivos .env
+*.env
+
+.vscode
+
+.gitHub
