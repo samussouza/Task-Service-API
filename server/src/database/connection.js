@@ -3,9 +3,9 @@ const mysql = require('mysql2');
 // Crie a conexão com o banco de dados
 const connection = mysql.createConnection({
     host: 'localhost',
-    user: 'userAPI',
-    password: 'sptech100',
-    database: 'tarefas'
+    user: '******',
+    password: '*****',
+    database: '*****'
 });
 
 // Conecte ao banco de dados
