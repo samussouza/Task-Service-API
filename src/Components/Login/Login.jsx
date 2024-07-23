@@ -20,7 +20,7 @@ function Login() {
     setLoading(true); // Inicia o carregamento
 
     try {
-      const response = await fetch("http://localhost:4000/usuario/validateUser", {
+      const response = await fetch("api/usuario/validateUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

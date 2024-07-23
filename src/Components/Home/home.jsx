@@ -36,7 +36,7 @@ function Home() {
 
     const listTask = async () => {
         try {
-            const response = await fetch(`http://localhost:4000/task/listTask/${sessionStorage.ID_USER}`, {
+            const response = await fetch(`api/task/listTask/${sessionStorage.ID_USER}`, {
                 method: "GET"
             });
             if (response.ok) {
@@ -68,7 +68,7 @@ function Home() {
         return;
     }
     try {
-        const response = await fetch('http://localhost:4000/task/newTask', {
+        const response = await fetch('api/task/newTask', {
             method: "POST",
             headers: {
                 "Content-type": "application/json"
@@ -100,7 +100,7 @@ const deleteTask = async (id, user) => {
     console.log("ID da tarefa a ser excluída:", id);
     console.log("ID do usuário:", user);
     try {
-        const response = await fetch('http://localhost:4000/task/deleteTask', {
+        const response = await fetch('api/task/deleteTask', {
             method: "POST",
             headers: {
                 "Content-type": "application/json"

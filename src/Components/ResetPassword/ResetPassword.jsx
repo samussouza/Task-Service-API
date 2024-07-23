@@ -27,7 +27,7 @@ function ResetPassword() {
         }
         sessionStorage.setItem("EMAIL_USER", setUserEmail)
         try {
-            const response = await fetch('http://localhost:4000/emailService/resetPassword', {
+            const response = await fetch('api/emailService/resetPassword', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

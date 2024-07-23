@@ -55,7 +55,7 @@ async function enviarEmailCadastro(req, res) {
 
         const assunto = 'Redefinir senha';
         const conteudo = `<p>Você solicitou a redefinição de senha. Utilize o link abaixo para redefinir sua senha:</p>
-        <p><a href="http://localhost:5173/reset-password?token=${resultado.tokenJWT}">Clique aqui para redefinir sua senha</a></p>
+        <p><a href="http://192.168.18.53:5173/additionalDiv?token=${resultado.tokenJWT}">Clique aqui para redefinir sua senha</a></p>
         <i>O código expira em uma hora.</i>`;
 
         const emailOptions = {

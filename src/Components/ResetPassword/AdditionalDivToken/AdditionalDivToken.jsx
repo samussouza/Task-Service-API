@@ -1,67 +1,49 @@
 import React from "react";
 import styles from './AdditionalDivToken.module.css';
 import { useState } from "react";
+import { useSearchParams } from 'react-router-dom';
 
 function TokenValidation() {
-    const [tokenUser, setTokenUser] = useState("");
+    //usar useEffect
+    const [searchParams] = useSearchParams();
+    const token = searchParams.get('token');
+ 
     const [validationMessage, setValidationMessage] = useState("");
-    const [showNewPassword, setNewPassword] = useState(false);
-    const [idUser, setIdUser] = useState("");
-   
-        
-    const validate = (e) => {
-        e.preventDefault();
-        if (tokenUser == sessionStorage.TOKEN_RESET) {
-            setValidationMessage("Token válido!");
-            setNewPassword(true);
-
-        } else {
-            setValidationMessage("Token inválido!");
-           
-        }
-    };
-
     const [userSenha, setUserSenha] = useState("");
     const [userRepeatSenha, setUserRepeatSenha] = useState("");
 
+    
     const envForm = async (e) => {
         e.preventDefault();
 
+        if (userSenha !== userRepeatSenha){
+            setUserRepeatSenha("As senhas não correspondem!");
+            return;
+        }
 
         try {
-            const response = await fetch('http://localhost:4000/emailService/changePassword', {
+            const response = await fetch('api/emailService/changePassword', {
                 method: "POST",
                 headers: {
-                    "Content-type": "application-json"
+                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ password: userSenha, email: sessionStorage.EMAIL_USER })
+                body: JSON.stringify({ newPassword: userSenha, tokenUser: token})
             });
             if (response.ok) {
                 const data = response.json();
                 console.log("Resposta do servidor:" + data);
+                setValidationMessage("Senha alterada com sucesso!");
             } else {
                 throw new Error("Erro ao alterar a senha!")
             }
         } catch (error) {
             console.error('Erro na requisição:', error.message);
+            setValidationMessage(error.message);
         }
     }
 
     return (
         <div>
-            <p>Informe o token:</p>
-            <form onSubmit={validate}>  
-                <input
-                    type="text"
-                    value={tokenUser}
-                    onChange={(e) => setTokenUser(e.target.value)}
-                    placeholder="Insira o token "
-                />
-                <button type="submit">Validar</button>
-            </form>
-            <p>{validationMessage}</p>
-
-            {showNewPassword && <div>
                 <div className={styles.formNewPassword}>
                     <h3 className={styles.titleFormNewPassword}>Insira sua nova senha</h3>
                     <form onSubmit={envForm} >
@@ -74,9 +56,11 @@ function TokenValidation() {
                             <input type="password" placeholder='******' value={userRepeatSenha} onChange={(e) => setUserRepeatSenha(e.target.value)} />
                         </label>
                         <button>Mudar</button>
+                        {validationMessage && <p>{validationMessage}</p>}
                     </form>
+
                 </div>
-            </div>}
+         
         </div>
     );
 }

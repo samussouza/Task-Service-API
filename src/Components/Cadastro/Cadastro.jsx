@@ -22,7 +22,7 @@ function Cadastro() {
         // }
 
         //const response com feth
-        const response = await fetch('http://localhost:4000/usuario/registerUser', {
+        const response = await fetch('api/usuario/registerUser', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
