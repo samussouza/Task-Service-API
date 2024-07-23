@@ -1,29 +1,14 @@
-const nodemailer = require('nodemailer');
 const crypto = require('crypto');
+const transporter = require('./emailConfig');
 const database = require('../database/connection');
-
-// Função para gerar um token criptograficamente seguro composto apenas por números
-function gerarTokenNumerico() {
-    const token = crypto.randomBytes(3).toString('hex').toUpperCase(); // Gerando um token de 6 caracteres hexadecimais
-    return token; // Retornando o token gerado
-}
+const generateToken = require('./generateToken');
 
 // Função para enviar email com o token gerado
 async function enviarEmailCadastro(req, res) {
     const { userEmail } = req.body;
-    const token = gerarTokenNumerico(); // Gerando o token
 
-    // Abertura do serviço de transporte para enviar email
-    let transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'samuel18tao@gmail.com', // Substitua pelo seu email
-            pass: 'jcjy jrgj qbnd afsa' // Substitua pela sua senha
-        }
-    });
-
-    // Função de validação de email
-    const validarEmail = async () => {
+    // Função de validação de email e atualização do banco de dados
+    const validarEmailEAtualizar = async () => {
         return new Promise((resolve, reject) => {
             const query = "SELECT * FROM usuario WHERE email = ? ";
             const value = [userEmail];
@@ -31,10 +16,31 @@ async function enviarEmailCadastro(req, res) {
             database.query(query, value, (error, results) => {
                 if (error) {
                     console.error('Erro ao validar email:', error);
-                    reject('erro ao validar email');
+                    reject('Erro ao validar email');
                 } else if (results.length >= 1) {
-                    console.log("Email validado com sucesso " + results[0]);
-                    resolve({ message: "Email validado com sucesso", email: results[0] });
+                    const user = results[0];
+                    console.log("Email validado com sucesso ", user);
+                    
+                    const tokenJWT = generateToken(user.id);
+
+                    const updateQuery = "UPDATE usuario SET reset_token = ?, reset_token_expires = ? WHERE id = ?;";
+                    const now = new Date();
+                    const expiryDate = new Date(now.getTime() + (1 * 60 * 60 * 1000));
+                    const values = [tokenJWT, expiryDate, user.id];
+
+                    database.query(updateQuery, values, (updateError) => {
+                        if (updateError) {
+                            console.error('Erro ao atualizar o banco de dados:', updateError);
+                            reject('Erro ao atualizar o banco de dados');
+                        } else {
+                            resolve({
+                                message: "Banco de dados atualizado com sucesso!",
+                                email: user.email,
+                                id: user.id,
+                                tokenJWT // Inclui o tokenJWT no resultado
+                            });
+                        }
+                    });
                 } else {
                     console.log('Usuário não encontrado com o email informado');
                     reject('Usuário não encontrado ou email incorreto');
@@ -44,39 +50,41 @@ async function enviarEmailCadastro(req, res) {
     };
 
     try {
-        await validarEmail(); // Chama a função de validação de email
+        const resultado = await validarEmailEAtualizar(); // Chama a função de validação e atualização
+        console.log('Token gerado:', resultado.tokenJWT);
+
+        const assunto = 'Redefinir senha';
+        const conteudo = `<p>Você solicitou a redefinição de senha. Utilize o link abaixo para redefinir sua senha:</p>
+        <p><a href="http://localhost:5173/reset-password?token=${resultado.tokenJWT}">Clique aqui para redefinir sua senha</a></p>
+        <i>O código expira em uma hora.</i>`;
+
+        const emailOptions = {
+            from: process.env.EMAIL_USER,
+            to: userEmail,
+            subject: assunto,
+            html: conteudo
+        };
+
+        transporter.sendMail(emailOptions, (err, info) => {
+            if (err) {
+                console.log('Erro ao enviar email:', err);
+                res.status(500).json({ error: 'Erro ao enviar email' });
+            } else {
+                console.log('Email enviado:', info.response);
+                res.json({ message: 'Email enviado com sucesso', token: resultado.tokenJWT });
+            }
+        });
+
     } catch (error) {
-        if (error === 'erro ao validar email') {
+        console.error('Erro no processo de envio:', error);
+        if (error === 'Erro ao validar email') {
             return res.status(500).send({ error });
         } else if (error === 'Usuário não encontrado ou email incorreto') {
             return res.status(401).send({ error });
+        } else if (error === 'Erro ao atualizar o banco de dados') {
+            return res.status(500).send({ error });
         }
     }
-
-    const assunto = 'Redefinir senha';
-    const conteudo = `<p>Utilize o seguinte token para redefinir sua senha:</p>
-                      <h1>CÓDIGO</h1>
-                      <p>
-                          <h2>${token}</h2>
-                      <p/>
-                      `;
-
-    const emailOptions = {
-        from: 'seuemail@gmail.com', // Substitua pelo seu email
-        to: userEmail, // Substitua pelo email do destinatário
-        subject: assunto,
-        html: conteudo
-    };
-
-    transporter.sendMail(emailOptions, (err, info) => {
-        if (err) {
-            console.log('Erro ao enviar email:', err);
-            res.status(500).json({ error: 'Erro ao enviar email' });
-        } else {
-            console.log('Email enviado:', info.response);
-            res.json({ message: 'Email enviado com sucesso', token });
-        }
-    });
 }
 
 module.exports = enviarEmailCadastro;

@@ -1,14 +1,14 @@
 const database = require("../database/connection");
 
 function newTask(req, res) {
-    const { title, category, notes, id } = req.body;
+    const { title, category, notes, id , date} = req.body;
 
-    if (!title, !category, !notes, !id) {
-        res.status(404).send("Campo inválidos");
+    if (!title, !category, !notes, !id, !date) {
+        res.status(404).send("Campos inválidos");
     }
 
-    const insert = "INSERT INTO tarefas (titulo, categoria, anotacoes, fk_user) VALUES (?, ?, ?, ?)";;
-    const values = [title, category, notes, id];
+    const insert = "INSERT INTO tarefas (titulo, categoria, anotacoes, data, fk_user) VALUES (?, ?, ?, ?, ?)";;
+    const values = [title, category, notes, date, id];
 
     database.query(insert, values, (error, results) => {
         if (results) {
@@ -25,7 +25,7 @@ function newTask(req, res) {
 function listTask(req, res) {
     const id = req.params.userId;
 
-    const query = "SELECT * FROM tarefas WHERE fk_user = ?";
+    const query = "SELECT * FROM tarefas WHERE fk_user = ?;";
     const value = [id];
 
     database.query(query, value ,(error, results) => {
@@ -39,7 +39,42 @@ function listTask(req, res) {
     });
 }
 
+function deleteTask(req, res) {
+    const { idTask, idUser } = req.body;
+
+    // Primeiro, excluimos a tarefa
+    const deleteQuery = "DELETE FROM tarefas WHERE id = ? AND fk_user = ?";
+    const deleteValues = [idTask, idUser];
+
+    database.query(deleteQuery, deleteValues, (error, results) => {
+        if (error) {
+            console.error("Erro ao deletar tarefa: ", error);
+            return res.status(500).json({ error: "Erro ao deletar tarefa" });
+        } 
+
+        if (results.affectedRows === 0) {
+            // Nenhuma tarefa encontrada para deletar
+            console.log('Nenhuma tarefa encontrada para deletar');
+            return res.status(404).json({ message: 'Nenhuma tarefa encontrada para deletar' });
+        }
+
+        // Após a exclusão, redefine o AUTO_INCREMENT
+        const alterQuery = "ALTER TABLE tarefas AUTO_INCREMENT = 1";
+        
+        database.query(alterQuery, (error) => {
+            if (error) {
+                console.error("Erro ao redefinir AUTO_INCREMENT: ", error);
+                return res.status(500).json({ error: "Erro ao redefinir AUTO_INCREMENT" });
+            }
+
+            console.log('Tarefa deletada e AUTO_INCREMENT redefinido com sucesso');
+            res.json({ message: 'Tarefa deletada com sucesso' });
+        });
+    });
+}
+
 module.exports = {
     newTask,
-    listTask
+    listTask,
+    deleteTask
 };
