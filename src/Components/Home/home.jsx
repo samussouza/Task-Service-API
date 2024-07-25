@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartLine, faUser, faBell, faBox, faImage, faGear, faChevronRight, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { MdEdit } from "react-icons/md";
 import ReactModal from "react-modal";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
     const [titleTask, setTitleTask] = useState("");
@@ -17,6 +18,13 @@ function Home() {
     const [errorMessage, showErroMessage] = useState("");
     const [successMessage, setSuccessMessage] = useState("");
     const [isOpen, setIsOpen] = useState(false);
+    const navigate = useNavigate();
+
+     //Chama a função listTask quando o componente é montado
+     useEffect(() => {
+        setIdUser(sessionStorage.ID_USER);
+        listTask();
+    }, []);
 
     const toggleSidebar = () => {
         setIsOpen(!isOpen);
@@ -39,6 +47,21 @@ function Home() {
         setDateTask("");
     }
 
+    //Função que redireciona para tela de perfil
+    const perfilRedirect = () => {
+        navigate('/perfil');
+    }
+
+    //Função que atribui o valor do select para a tabela
+    const statusChange = (event, taskId) => {
+        const updatedStatus = event.target.value;
+        setTasks(prevTasks =>
+            prevTasks.map(task =>
+                task.id === taskId ? { ...task, status: updatedStatus } : task
+            )
+        );
+    };
+
     const listTask = async () => {
         try {
             const response = await fetch(`api/task/listTask/${sessionStorage.ID_USER}`, {
@@ -56,11 +79,7 @@ function Home() {
         }
     };
 
-    //Chama a função listTask quando o componente é montado
-    useEffect(() => {
-        setIdUser(sessionStorage.ID_USER);
-        listTask();
-    }, []);
+   
 
     const newTask = async (event) => {
         event.preventDefault();
@@ -128,7 +147,7 @@ function Home() {
 
     return (
         <div className={styles.container}>
-            <nav className={`${styles.sidebar} ${isOpen ? styles.openSidebar : ''}`}>
+            {/* <nav className={`${styles.sidebar} ${isOpen ? styles.openSidebar : ''}`}>
                 <div className={styles.sidebarContent}>
                     <div className={styles.user}>
                         <img src="src/images/avatar.jpg" className={styles.userAvatar} alt="Avatar" />
@@ -146,7 +165,7 @@ function Home() {
                             </a>
                         </li>
                         <li className={styles.sideItem}>
-                            <a href="#">
+                            <a href="#" onClick={perfilRedirect}>
                                 <FontAwesomeIcon icon={faUser} />
                                 <span className={styles.itemDescription}>Perfil</span>
                             </a>
@@ -188,10 +207,10 @@ function Home() {
                         <span className={styles.itemDescription}>Logout</span>
                     </button>
                 </div>
-            </nav>
+            </nav> */}
 
             <div className={styles.containerContent}>
-               
+
                 <button className={styles.buttonNewTask} onClick={openModal}>New Task</button>
 
                 <ReactModal
@@ -243,8 +262,20 @@ function Home() {
                                             <td>{task.categoria}</td>
                                             <td>{task.anotacoes}</td>
                                             <td>
-                                                <span className={`${styles.status} ${task.status === 'Ativo' ? styles.active : styles.inactive}`}>
-                                                    {task.status}
+                                                <span className={`${styles.status} ${task.status === 'Ativo' ? styles.activeTask : styles.inactiveTask}`}>
+                                                    {/* {task.status} */}
+                                                    <select
+                                                        value={task.status}
+                                                        className={styles.selectStatus}
+                                                        onChange={(event) => statusChange(event, task.id)}
+                                                        style={{
+                                                            backgroundColor: task.status === "Ativo" ? 'green' : (task.status === "Finalizado" ? 'red' : 'green'),
+                                                            color: 'white'
+                                                        }}
+                                                    >
+                                                        <option value="Ativo">Ativo</option>
+                                                        <option value="Finalizado">Finalizado</option>
+                                                    </select>
                                                 </span>
                                             </td>
                                             <td>{new Date(task.data).toLocaleDateString('pt-BR')}</td>

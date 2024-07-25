@@ -1,0 +1,148 @@
+
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: #ffffff;
+    
+    height: 100vh;
+    border-radius: 0px 18px 18px 0px;
+    position: relative;
+    transition: all .5s;
+    min-width: 82px;
+    z-index: 2;
+  }
+  
+  .sidebarContent {
+    padding: 12px;
+  }
+  
+  .user {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+  }
+  
+  .userAvatar {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 20px;
+  }
+  
+  .userInfos {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .userInfos span:last-child {
+    color: #6b6b6b;
+    font-size: 12px;
+  }
+  
+  .sideItems {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    list-style: none;
+  }
+  
+  .sideItem {
+    border-radius: 8px;
+    padding: 14px;
+    cursor: pointer;
+  }
+  
+  .active {
+    background-color: #4f46e5;
+  }
+  
+  .sideItem:hover:not(.active),
+  .logoutBtn:hover {
+    background-color: #e3e9f7;
+  }
+  
+  .sideItem a {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0a0a0a;
+  }
+  
+  .active a {
+    color: #e3e9f7;
+  }
+  
+  .sideItem a i {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+  }
+  
+  .logout {
+    border-top: 1px solid #e3e9f7;
+    padding: 12px;
+  }
+  
+  .logoutBtn {
+    border: none;
+    padding: 12px;
+    font-size: 14px;
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    border-radius: 8px;
+    text-align: start;
+    cursor: pointer;
+    background-color: transparent;
+  }
+  
+  .openBtn {
+    position: absolute;
+    top: 30px;
+    right: -10px;
+    background-color: #4f46e5;
+    color: #e3e9f7;
+    border-radius: 100%;
+    width: 20px;
+    height: 20px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .openBtnIcon {
+    transition: transform .3s ease;
+  }
+  
+  .openSidebar .openBtnIcon {
+    transform: rotate(180deg);
+  }
+  
+  .itemDescription {
+    width: 0px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    transition: width .6s;
+    height: 0px;
+  }
+  
+  .openSidebar {
+    min-width: 15%;
+  }
+  
+  .openSidebar .itemDescription {
+    width: 150px;
+    height: auto;
+  }
+  
+  .openSidebar .sideItem a {
+    justify-content: flex-start;
+    gap: 14px;
+  }

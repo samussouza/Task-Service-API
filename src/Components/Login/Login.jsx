@@ -34,6 +34,8 @@ function Login() {
 
       const data = await response.json();
       sessionStorage.setItem("NAME_USER", data.user.nome);
+      sessionStorage.setItem("EMAIL_USER", data.user.email);
+      sessionStorage.setItem("SENHA USER", data.user.senha);
       sessionStorage.setItem("ID_USER", data.user.id);
 
       console.log("Resposta do servidor:", data);
