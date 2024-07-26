@@ -10,7 +10,8 @@
   <li><strong>Express.js</strong>: Framework para a criação de rotas e gerenciamento de requisições HTTP.</li>
   <li><strong>MySQL</strong>: Banco de dados relacional para armazenamento e gerenciamento de dados.</li>
   <li><strong>Nodemailer</strong>: Biblioteca para envio de e-mails.</li>
-  <li><strong>Crypto</strong>: Utilizado para geração e validação de tokens de segurança.</li>
+   <li><strong>Crypto (bcrypto)</strong>: Utilizado para criptografia de senhas</li>
+  <li><strong>JWT</strong>: Utilizado para proteção das rotas da API com tokens de validação seguros.</li>
 </ul>
 
 ### Frontend
