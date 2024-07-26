@@ -2,33 +2,33 @@ const database = require('../database/connection');
 const bcrypt = require('bcrypt');
 
 async function validateUser(req, res) {
-    const { userName, userPassword } = req.body;
+    const email = req.query.email;
+    const password = req.query.password;
 
-    const query = 'SELECT * FROM usuario WHERE email = ?';
-    const values = [userName];
+    const selectQuery = 'SELECT * FROM usuario WHERE email = ?';
+    const valueSelect = [email];
 
     try {
-        database.query(query, values, async (error, results) => {
+        database.query(selectQuery, valueSelect, async (error, results) => {
             if (error) {
                 console.error('Erro ao validar usuário:', error);
                 return res.status(500).json({ error: 'Erro ao validar usuário' });
             }
-
             if (results.length > 0) {
                 const user = results[0];
                 // Comparar a senha fornecida com o hash armazenado
-                const isMatch = await bcrypt.compare(userPassword, user.senha);
+                const isMatch = await bcrypt.compare(password, user.senha);
 
                 if (isMatch) {
                     console.log('Usuário encontrado:', results);
                     res.json({ message: 'Usuário validado com sucesso', user });
                 } else {
                     console.log('Senha incorreta');
-                    res.status(401).json({ message: 'Usuário não encontrado ou senha incorreta' });
+                    res.status(401).json({ message: 'Senha incorreta' });
                 }
             } else {
                 console.log('Usuário não encontrado');
-                res.status(401).json({ message: 'Usuário não encontrado ou senha incorreta' });
+                res.status(401).json({ message: 'Usuário não encontrado ' });
             }
         });
     } catch (error) {

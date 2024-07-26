@@ -44,19 +44,41 @@ body {
 .input-field {
     display: flex;
     justify-content: center;
+    position: relative;
 }
 
 .input {
     background: transparent;
     outline: none;
     width: 80%;
-    padding: 20px 25px;
+    padding: 1.2rem;
     height: 45px;
     border: none;
     border-bottom: 2px solid #aaaaaa;
     font-size: 16px;
+    transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.label {
+    color: rgba(70, 70, 70, 0.761);
+    position: absolute;
+    left: 70px;
+    top: -8px;
+    transform: translateY(1rem);
+    pointer-events: none;
+    transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.input:focus, .input:not(:placeholder-shown) {
+    outline: none;
+    /* border-bottom: 2px solid #4d4d4dbe; */
+}
+.input:focus ~ .label,
+.input:not(:placeholder-shown) ~ .label  {
+    transform: translateX(-50%) scale(0.8);
+    padding: 0 0.7em;
+    color: rgba(70, 70, 70, 0.761);
+    font-size: 12px
+}
 .inputCheck {
     margin-right: 5px;
 }
@@ -118,4 +140,18 @@ body {
 .link:hover {
     text-decoration: underline;
     color: #2495ff;
+}
+
+.input.errorStyle  {
+    border-bottom: 2px solid #ff0000;
+}
+
+.errorMessage{
+text-align: center;
+color: red;
+}
+
+.successMessage {
+    text-align: center;
+    color: #3CB371;
 }

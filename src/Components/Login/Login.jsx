@@ -1,103 +1,138 @@
 import React, { useState } from "react";
-import { FaUser, FaLock } from "react-icons/fa";
 import { useNavigate, Link } from "react-router-dom";
-import styles from "./Login.module.css";
+import Styles from "./Login.module.css";
 
 function Login() {
-  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
   const [userPassword, setUserPassword] = useState("");
-  const [loading, setLoading] = useState(false); // Novo estado de carregamento
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [passwordError, setPasswordError] = useState(false);
   const navigate = useNavigate();
+
+  const validateIFields = () => {
+    const regexEmail = /^[^\s@\.]+@[^\s@]+\.[^\s@]+$/;
+    const regexSenha = /^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*\d)(?=.*[@*!.#$%&]).{8,}$/;
+
+    setEmailError(false);
+    setPasswordError(false);
+
+    if (!userEmail || !userPassword) {
+      setEmailError(true);
+      setPasswordError(true)
+      setErrorMessage("Por favor, preencha todos os campos.");
+      return false;
+    }
+    else if (!regexEmail.test(userEmail)) {
+      setEmailError(true);
+      setErrorMessage("Email inválido!");
+      return false;
+    }
+    else if (!regexSenha.test(userPassword)) {
+      setPasswordError(true);
+      setErrorMessage("Senha inválida!");
+      return false;
+    }
+    setErrorMessage(""); // Limpa a mensagem de erro se tudo estiver correto
+    return true;
+  }
 
   const envForm = async (event) => {
     event.preventDefault();
 
-    if (!userName || !userPassword) {
-      alert("Por favor, preencha todos os campos.");
+    if (!validateIFields()) {
       return;
     }
 
     setLoading(true); // Inicia o carregamento
 
+    // Utilizando o método URLSearchParams para lidar com os valores de requisição
+    const params = new URLSearchParams({
+      email: userEmail,
+      password: userPassword
+    });
+
     try {
-      const response = await fetch("api/usuario/validateUser", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userName, userPassword }),
+      const response = await fetch(`api/usuario/validateUser?${params.toString()}`, {
+        method: "GET"
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao fazer login");
+        // Lê a resposta de erro do servidor
+        const data = await response.json();
+        setLoading(false);
+        throw new Error(data.message || "Erro ao validar usuário");
       }
 
       const data = await response.json();
+      console.log("Resposta do servidor (login): ", data);
+
       sessionStorage.setItem("NAME_USER", data.user.nome);
       sessionStorage.setItem("EMAIL_USER", data.user.email);
       sessionStorage.setItem("SENHA USER", data.user.senha);
       sessionStorage.setItem("ID_USER", data.user.id);
 
-      console.log("Resposta do servidor:", data);
-      alert("Usuário encontrado!");
+      setSuccessMessage("Usuário validado!");
 
-      navigate("/home");
+      setTimeout(() => {
+        navigate("/home");
+        setSuccessMessage("");
+      }, 1000);
 
+      setErrorMessage("");
     } catch (error) {
-      console.error("Erro na requisição:", error.message);
-      alert("Erro ao fazer login: " + error.message);
+      console.error("Erro na requisição de validar usuário: ", error.message);
+      setErrorMessage(`Erro: ${error.message}`);
     } finally {
       setLoading(false); // Finaliza o carregamento
     }
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.flexContainer}>
-        <div className={styles.divImg}></div>
-        <div className={styles.divForm}>
+    <div className={Styles.container}>
+      <div className={Styles.flexContainer}>
+        <div className={Styles.divImg}></div>
+        <div className={Styles.divForm}>
           <form onSubmit={envForm}>
-            <h1 className={styles.titleForm}>Acesse o Sistema</h1>
-            <div className={styles["input-field"]}>
+            <h1 className={Styles.titleForm}>Acesse o Sistema</h1>
+            <div className={Styles["input-field"]}>
               <input
-                className={styles.input}
-                type="email"
-                placeholder="E-mail"
-                value={userName}
-                onChange={(e) => setUserName(e.target.value)}
-                aria-label="E-mail"
+                className={`${Styles.input} ${userEmail && emailError ? Styles.errorStyle : ""}`}
+                type="text"
+                value={userEmail}
+                placeholder=" "
+                onChange={(e) => setUserEmail(e.target.value)}
               />
-              {/* <FaUser className={styles.icon} /> */}
+              <label className={Styles.label}>Email</label>
             </div>
-            <div className={styles["input-field"]}>
+            <div className={Styles["input-field"]}>
               <input
-                className={styles.input}
+                className={`${Styles.input} ${userPassword && passwordError ? Styles.errorStyle : ""}`}
                 type="password"
-                placeholder="Senha"
                 value={userPassword}
-                onChange={(e) => setUserPassword(e.target.value)}
-                aria-label="Senha"
-              />
-              {/* <FaLock className={styles.icon} /> */}
+                placeholder=" "
+                onChange={(e) => setUserPassword(e.target.value)} />
+              <label className={Styles.label}>Senha</label>
             </div>
-
-            <div className={styles["recall-forget"]}>
-              <label className={styles.labelCheck}>
-                <input className={styles.inputCheck} type="checkbox" id="rememberMe" />
+            <div className={Styles["recall-forget"]}>
+              <label className={Styles.labelCheck}>
+                <input className={Styles.inputCheck} type="checkbox" id="rememberMe" />
                 Lembre de mim
               </label>
-              <Link className={styles.link} to="/resetPassword">Esqueceu a senha?</Link>
+              <Link className={Styles.link} to="/resetPassword">Esqueceu a senha?</Link>
             </div>
-
-            <button className={styles.button} type="submit" disabled={loading}>
+            <button className={Styles.button} type="submit" disabled={loading}>
               {loading ? "Carregando..." : "Entrar"}
             </button>
-
-            <div className={styles["signup-link"]}>
+            <div className={Styles["signup-link"]}>
               <p>
-                Não tem uma conta? <Link className={styles.link} to="/cadastro">Registrar</Link>
+                Não tem uma conta? <Link className={Styles.link} to="/cadastro">Registrar</Link>
               </p>
             </div>
+            {errorMessage && <span className={Styles.errorMessage}>{errorMessage}</span>}
+            {successMessage && <span className={Styles.successMessage}>{successMessage}</span>}
           </form>
         </div>
       </div>
